@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dns = require('node:dns'); // Esto es lo que usó tu profesor
 const authRoutes = require('./routes/authRoutes');
+app.use('/api/users', require('./routes/users'));
 
 // ✅ La "Magia" de tu profesor para el DNS
 dns.setServers(['1.1.1.1', '8.8.8.8']);
