@@ -54,7 +54,11 @@ const UserSchema = new mongoose.Schema({
     fechaRegistro: {
         type: Date,
         default: Date.now
-    }
+    },
+
+    favorites: [{ type: Number }], // IDs de servicios favoritos
+
+    fotoPerfil: { type: String, default: '' }, // URL de Cloudinary
 });
 
 module.exports = mongoose.model('User', UserSchema);

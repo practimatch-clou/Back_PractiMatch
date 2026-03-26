@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dns = require('node:dns');
 const authRoutes = require('./routes/authRoutes');
+const perfilRoutes = require('./routes/perfil'); // ← agrega esto
 
 // ✅ La "Magia" de tu profesor para el DNS
 dns.setServers(['1.1.1.1', '8.8.8.8']);
@@ -14,6 +15,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', require('./routes/users')); // ← se mueve para abajo
+app.use('/api/perfil', perfilRoutes); // ← agrega esto
+app.use('/api/servicios', require('./routes/servicios'));
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI;

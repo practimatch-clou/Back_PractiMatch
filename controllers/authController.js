@@ -48,7 +48,7 @@ exports.loginUsuario = async (req, res) => {
             { expiresIn: '8h' }
         );
 
-        res.json({ token, usuario: { nombre: usuario.nombre, rol: usuario.rol } });
+        res.json({ token, usuario: { id: usuario._id, nombre: usuario.nombre, rol: usuario.rol } });
     } catch (error) {
         res.status(500).send('Error en el servidor');
     }
