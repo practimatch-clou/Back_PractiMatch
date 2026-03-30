@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+
+    area: { 
+        type: String, default: "" },
+
     precioPorHora: {
         type: Number,
         min: 0  // solo validar que no sea negativo

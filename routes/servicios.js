@@ -1,26 +1,42 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { upload, cloudinary } = require('../config/cloudinary');
-const Servicio = require('../models/Servicio');
+const { upload, cloudinary } = require("../config/cloudinary");
+const Servicio = require("../models/Servicio");
+const auth = require("../middleware/auth");
 
-// GET /api/servicios/:usuarioId — traer servicios del estudiante
-router.get('/:usuarioId', async (req, res) => {
+// 1️⃣ GET /api/servicios — todos los servicios activos (para el cliente)
+router.get('/', auth, async (req, res) => {
   try {
-    const servicios = await Servicio.find({ usuarioId: req.params.usuarioId });
+    const servicios = await Servicio.find({ activo: true })
+      .populate('usuarioId', 'nombre fotoPerfil universidad area')
+      .sort({ createdAt: -1 });
     res.json({ ok: true, servicios });
   } catch (e) {
     res.status(500).json({ ok: false, mensaje: e.message });
   }
 });
 
-// POST /api/servicios — crear servicio con imágenes
-router.post('/', upload.array('imagenes', 5), async (req, res) => {
+// 2️⃣ GET /api/servicios/:usuarioId — servicios del estudiante (para su dashboard)
+router.get('/:usuarioId', auth, async (req, res) => {
   try {
-    const { usuarioId, titulo, precio, tags, activo } = req.body;
+    const servicios = await Servicio.find({ usuarioId: req.params.usuarioId })
+      .populate('usuarioId', 'nombre fotoPerfil universidad area');
+    res.json({ ok: true, servicios });
+  } catch (e) {
+    res.status(500).json({ ok: false, mensaje: e.message });
+  }
+});
+
+// 3️⃣ POST /api/servicios — crear servicio con imágenes
+router.post('/', auth, upload.array('imagenes', 5), async (req, res) => {
+  try {
+    const { titulo, precio, tags, activo } = req.body;
     const imagenes = req.files?.map(f => f.path) ?? [];
 
     const servicio = await Servicio.create({
-      usuarioId, titulo, precio,
+      usuarioId: req.usuario.id,
+      titulo,
+      precio,
       tags: JSON.parse(tags || '[]'),
       activo: activo === 'true',
       imagenes,
@@ -31,14 +47,14 @@ router.post('/', upload.array('imagenes', 5), async (req, res) => {
   }
 });
 
-// PUT /api/servicios/:id/imagenes — agregar imágenes a servicio existente
-router.put('/:id/imagenes', upload.array('imagenes', 5), async (req, res) => {
+// 4️⃣ PUT /api/servicios/:id/imagenes — agregar imágenes a servicio existente
+router.put("/:id/imagenes", upload.array("imagenes", 5), async (req, res) => {
   try {
-    const nuevasUrls = req.files?.map(f => f.path) ?? [];
+    const nuevasUrls = req.files?.map((f) => f.path) ?? [];
     const servicio = await Servicio.findByIdAndUpdate(
       req.params.id,
       { $push: { imagenes: { $each: nuevasUrls } } },
-      { new: true }
+      { new: true },
     );
     res.json({ ok: true, servicio });
   } catch (e) {
@@ -46,14 +62,13 @@ router.put('/:id/imagenes', upload.array('imagenes', 5), async (req, res) => {
   }
 });
 
-// DELETE /api/servicios/:id/imagenes/:imgIdx — eliminar imagen
-router.delete('/:id/imagenes/:imgIdx', async (req, res) => {
+// 5️⃣ DELETE /api/servicios/:id/imagenes/:imgIdx — eliminar imagen
+router.delete("/:id/imagenes/:imgIdx", async (req, res) => {
   try {
     const servicio = await Servicio.findById(req.params.id);
     const url = servicio.imagenes[req.params.imgIdx];
 
-    // Borrar de Cloudinary
-    const publicId = url.split('/').pop().split('.')[0];
+    const publicId = url.split("/").pop().split(".")[0];
     await cloudinary.uploader.destroy(`perfiles/${publicId}`);
 
     servicio.imagenes.splice(req.params.imgIdx, 1);

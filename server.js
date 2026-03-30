@@ -5,6 +5,7 @@ const cors = require('cors');
 const dns = require('node:dns');
 const authRoutes = require('./routes/authRoutes');
 const perfilRoutes = require('./routes/perfil'); // ← agrega esto
+const serviciosRoutes = require('./routes/servicios');
 
 // ✅ La "Magia" de tu profesor para el DNS
 dns.setServers(['1.1.1.1', '8.8.8.8']);
