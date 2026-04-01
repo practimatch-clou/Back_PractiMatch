@@ -1,0 +1,64 @@
+const express = require("express");
+const router = express.Router();
+const pusher = require("../lib/pusher");
+const Message = require("../models/Message");
+const Conversation = require("../models/Conversation");
+
+// POST /api/messages
+router.post("/", async (req, res) => {
+  try {
+    const { senderId, receiverId, content } = req.body;
+
+    // Guardar mensaje
+    const message = await Message.create({ senderId, receiverId, content });
+
+    // ✅ Después — busca primero, crea si no existe
+    let conversation = await Conversation.findOne({
+      participants: { $all: [senderId, receiverId] },
+    });
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [senderId, receiverId],
+        lastMessage: content,
+        lastMessageTime: new Date(),
+      });
+    } else {
+      conversation.lastMessage = content;
+      conversation.lastMessageTime = new Date();
+      await conversation.save();
+    }
+
+    // Disparar evento al receptor
+    await pusher.trigger(`chat-${receiverId}`, "new-message", {
+      _id: message._id,
+      senderId,
+      receiverId,
+      content,
+      createdAt: message.createdAt,
+    });
+
+    res.status(201).json(message);
+  } catch (err) {
+    console.error("❌ Error completo:", err); // ← esto nos dirá exactamente qué falla
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/messages/:senderId/:receiverId — historial
+router.get("/:senderId/:receiverId", async (req, res) => {
+  try {
+    const { senderId, receiverId } = req.params;
+    const messages = await Message.find({
+      $or: [
+        { senderId, receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).sort({ createdAt: 1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;

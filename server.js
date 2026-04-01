@@ -6,6 +6,8 @@ const dns = require('node:dns');
 const authRoutes = require('./routes/authRoutes');
 const perfilRoutes = require('./routes/perfil'); // ← agrega esto
 const serviciosRoutes = require('./routes/servicios');
+const messageRoutes = require('./routes/messages');
+
 
 // ✅ La "Magia" de tu profesor para el DNS
 dns.setServers(['1.1.1.1', '8.8.8.8']);
@@ -18,6 +20,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', require('./routes/users')); // ← se mueve para abajo
 app.use('/api/perfil', perfilRoutes); // ← agrega esto
 app.use('/api/servicios', require('./routes/servicios'));
+app.use('/api/messages', messageRoutes);
+app.use('/api/solicitudes', require('./routes/solicitudes'));
+app.use('/api/conversations', require('./routes/conversations'));
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI;
