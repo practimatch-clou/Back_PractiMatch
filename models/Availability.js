@@ -1,27 +1,34 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const AvailabilitySchema = new mongoose.Schema({
+const AvailabilitySchema = new mongoose.Schema(
+  {
     estudiante: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    dia: {
+      type: String,
+      required: false,
     },
     fecha: {
-        type: Date,
-        required: true
+      type: Date,
+      required: true,
     },
     horaInicio: {
-        type: String,  // "10:00"
-        required: true
+      type: String, // "10:00"
+      required: true,
     },
     horaFin: {
-        type: String,  // "11:00"
-        required: true
+      type: String, // "11:00"
+      required: true,
     },
     disponible: {
-        type: Boolean,
-        default: true
-    }
-}, { timestamps: true });
+      type: Boolean,
+      default: true,
+    },
+  },
+  { timestamps: true },
+);
 
-module.exports = mongoose.model('Availability', AvailabilitySchema);
+module.exports = mongoose.model("Availability", AvailabilitySchema);

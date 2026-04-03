@@ -23,6 +23,9 @@ app.use('/api/servicios', require('./routes/servicios'));
 app.use('/api/messages', messageRoutes);
 app.use('/api/solicitudes', require('./routes/solicitudes'));
 app.use('/api/conversations', require('./routes/conversations'));
+app.use('/api/availability', require('./routes/availability'));
+app.use('/api/citas', require('./routes/citas'));
+app.use('/api/payments', require('./routes/payments'));
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI;
