@@ -1,5 +1,14 @@
 const mongoose = require("mongoose");
 
+// ← documentSchema PRIMERO
+const documentSchema = new mongoose.Schema({
+  url: { type: String, required: true },
+  publicId: { type: String, required: true },
+  nombre: { type: String, required: true },
+  tipo: { type: String },
+  uploadedAt: { type: Date, default: Date.now },
+});
+
 const UserSchema = new mongoose.Schema(
   {
     carrera: {
@@ -15,70 +24,27 @@ const UserSchema = new mongoose.Schema(
         "Arquitectura",
         "Otra",
       ],
-      // No required porque el cliente no tiene carrera
     },
-    universidad: {
-      type: String,
-      trim: true,
-    },
-
-    area: {
-      type: String,
-      default: "",
-    },
-
-    precioPorHora: {
-      type: Number,
-      min: 0, // solo validar que no sea negativo
-    },
+    universidad: { type: String, trim: true },
+    area: { type: String, default: "" },
+    precioPorHora: { type: Number, min: 0 },
     rol: {
       type: String,
       required: true,
-      enum: ["estudiante", "cliente"], // Coincide con tu selección inicial
-    },
-    nombre: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    apellido: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    aceptaTerminos: {
-      type: Boolean,
-      required: true, // Para asegurar que marcaron el botón/check de términos
-    },
-    // Esto servirá para la opción de "Recuperar contraseña" más adelante
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
-
-    fechaRegistro: {
-      type: Date,
-      default: Date.now,
-    },
-
-    favorites: [{ type: Number }], // IDs de servicios favoritos
-
-    fotoPerfil: { type: String, default: "" }, // URL de Cloudinary
-
-    rol: {
-      type: String,
-      enum: ["estudiante", "admin"],
+      enum: ["estudiante", "cliente", "admin"], // ← unificado aquí
       default: "estudiante",
     },
-    documentosValidacion: [documentSchema],
+    nombre: { type: String, required: true, trim: true },
+    apellido: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
+    aceptaTerminos: { type: Boolean, required: true },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    fechaRegistro: { type: Date, default: Date.now },
+    favorites: [{ type: Number }],
+    fotoPerfil: { type: String, default: "" },
+    documentosValidacion: [documentSchema], // ← ahora sí lo encuentra
     estadoValidacion: {
       type: String,
       enum: ["pendiente", "en_revision", "aprobado", "rechazado"],
@@ -91,11 +57,3 @@ const UserSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("User", UserSchema);
-
-const documentSchema = new mongoose.Schema({
-  url: { type: String, required: true }, // URL de Cloudinary
-  publicId: { type: String, required: true }, // Para poder eliminarlo si se rechaza
-  nombre: { type: String, required: true }, // Nombre del archivo
-  tipo: { type: String }, // credencial, constancia, etc.
-  uploadedAt: { type: Date, default: Date.now },
-});
