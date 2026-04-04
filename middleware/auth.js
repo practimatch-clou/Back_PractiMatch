@@ -7,7 +7,10 @@ module.exports = function authMiddleware(req, res, next) {
   }
   const token = authHeader.split(" ")[1];
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    req.userId = decoded.id;    // ← para las rutas que usan req.userId
+    req.userRol = decoded.rol;  // ← para esAdmin
     next();
   } catch {
     res.status(401).json({ error: "Token inválido o expirado" });
