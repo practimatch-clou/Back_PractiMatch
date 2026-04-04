@@ -12,7 +12,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'perfiles',         // carpeta en tu Cloudinary
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp',],
     transformation: [{ width: 400, height: 400, crop: 'fill' }], // redimensiona automático
   },
 });
