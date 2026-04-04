@@ -16,7 +16,14 @@ dns.setServers(['1.1.1.1', '8.8.8.8']);
 dns.setDefaultResultOrder('ipv4first');
 
 const app = express(); // ← app se declara AQUÍ primero
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://tu-frontend.vercel.app" // ← agrega tu URL de frontend cuando lo subas
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', require('./routes/users')); // ← se mueve para abajo
