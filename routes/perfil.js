@@ -9,7 +9,9 @@ router.get("/:id", async (req, res) => {
   try {
     const usuario = await Usuario.findById(req.params.id).select("-password");
     if (!usuario)
-      return res.status(404).json({ ok: false, mensaje: "Usuario no encontrado" });
+      return res
+        .status(404)
+        .json({ ok: false, mensaje: "Usuario no encontrado" });
     res.json({ ok: true, usuario });
   } catch (error) {
     console.error("ERROR GET:", error);
@@ -23,8 +25,8 @@ router.put("/:id", upload.single("fotoPerfil"), async (req, res) => {
     console.log("req.body:", req.body);
     console.log("req.file:", req.file);
 
-    const { nombre } = req.body;
-    const updateData = { nombre };
+    const { nombre, carrera, universidad } = req.body;
+    const updateData = { nombre, carrera, universidad };
 
     if (req.file) {
       updateData.fotoPerfil = req.file.path;
@@ -40,7 +42,7 @@ router.put("/:id", upload.single("fotoPerfil"), async (req, res) => {
     const actualizado = await Usuario.findByIdAndUpdate(
       req.params.id,
       updateData,
-      { new: true }
+      { new: true },
     );
 
     res.json({ ok: true, usuario: actualizado });
