@@ -26,20 +26,23 @@ app.use('/api/conversations', require('./routes/conversations'));
 app.use('/api/availability', require('./routes/availability'));
 app.use('/api/citas', require('./routes/citas'));
 app.use('/api/payments', require('./routes/payments'));
+app.use("/api/documents", require("./routes/documents"));
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI;
 
-// ✅ Configuración de conexión robusta
 mongoose.connect(MONGO_URI, {
   serverSelectionTimeoutMS: 10000,
   family: 4,
-})
-  .then(() => {
-    console.log('✅ Conectado a mongoDB:', mongoose.connection.name);
+}).then(() => {
+  console.log('✅ Conectado a mongoDB:', mongoose.connection.name);
+  // Solo escucha en local
+  if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => console.log(`🚀 Servidor de PractiMatch en puerto: ${PORT}`));
-  })
-  .catch(err => {
-    console.error('❌ Error conectado a mongoDB:', err.message);
-    process.exit(1);
-  });
+  }
+}).catch(err => {
+  console.error('❌ Error conectado a mongoDB:', err.message);
+  process.exit(1);
+});
+
+module.exports = app;
