@@ -17,11 +17,17 @@ dns.setDefaultResultOrder('ipv4first');
 
 const app = express(); // ← app se declara AQUÍ primero
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "https://tu-frontend.vercel.app" // ← agrega tu URL de frontend cuando lo subas
-  ],
+  origin: function(origin, callback) {
+    const allowed = [
+      "http://localhost:5173",
+      "http://localhost:5174",
+    ];
+    if (!origin || allowed.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
