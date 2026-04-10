@@ -18,13 +18,15 @@ const app = express(); // ← app se declara AQUÍ primero
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowed = [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        process.env.FRONTEND_URL, // ← variable de entorno
-      ].filter(Boolean);
+      // Permitir requests sin origin (Postman, mobile, server-to-server)
+      if (!origin) return callback(null, true);
 
-      if (!origin || allowed.includes(origin)) {
+      const allowed = ["http://localhost:5173", "http://localhost:5174"];
+
+      // ✅ Permite cualquier subdominio de vercel.app
+      const isVercel = origin.endsWith(".vercel.app");
+
+      if (allowed.includes(origin) || isVercel) {
         callback(null, true);
       } else {
         callback(new Error(`CORS bloqueado: ${origin}`));
