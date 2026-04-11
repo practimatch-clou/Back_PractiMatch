@@ -2,9 +2,14 @@ const mongoose = require('mongoose');
 
 const conversationSchema = new mongoose.Schema(
   {
-    participants: [{ type: String, required: true }], // [clienteId, estudianteId]
+    participants: [{ type: String, required: true }],
     lastMessage: { type: String, default: "" },
     lastMessageTime: { type: Date, default: Date.now },
+    unreadCount: {
+      type: Map,
+      of: Number,
+      default: {},
+    },
   },
   { timestamps: true }
 );

@@ -28,6 +28,7 @@ router.get('/:userId', async (req, res) => {
           iniciales: (otro?.nombre ?? 'U').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
           ultimoMensaje: conv.lastMessage,
           lastMessageTime: conv.lastMessageTime,
+          unread: conv.unreadCount?.get(userId) ?? 0,  // ← esto es lo que faltaba
         };
       })
     );
