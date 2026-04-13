@@ -68,12 +68,4 @@ router.get("/:senderId/:receiverId", async (req, res) => {
   }
 });
 
-router.put("/:conversationId/read", async (req, res) => {
-  const { userId } = req.body;
-  await Conversation.findByIdAndUpdate(req.params.conversationId, {
-    $set: { [`unreadCount.${userId}`]: 0 },
-  });
-  res.json({ ok: true });
-});
-
 module.exports = router;
