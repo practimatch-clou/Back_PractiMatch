@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const Resena = require("../models/Resena");
-const Cita = require("../models/Appointment"); // ← corregido
+const Cita = require("../models/Appointment");
 
+// POST /api/resenas
 router.post("/", auth, async (req, res) => {
   try {
     const { citaId, calificacion, comentario } = req.body;
@@ -11,9 +12,9 @@ router.post("/", auth, async (req, res) => {
 
     const cita = await Cita.findById(citaId);
     if (!cita) return res.status(404).json({ ok: false, mensaje: "Cita no encontrada" });
-    if (cita.cliente.toString() !== clienteId)           // ← corregido
+    if (cita.cliente.toString() !== clienteId)
       return res.status(403).json({ ok: false, mensaje: "No tienes permiso para reseñar esta cita" });
-    if (cita.estado !== "pagada" && cita.estado !== "completada")  // ← corregido
+    if (cita.estado !== "pagada" && cita.estado !== "completada")
       return res.status(400).json({ ok: false, mensaje: "Solo puedes reseñar citas pagadas o completadas" });
 
     const yaReseno = await Resena.findOne({ citaId });
@@ -21,7 +22,7 @@ router.post("/", auth, async (req, res) => {
 
     const resena = await Resena.create({
       clienteId,
-      estudianteId: cita.estudiante,  // ← corregido
+      estudianteId: cita.estudiante,
       citaId,
       calificacion,
       comentario: comentario ?? "",
@@ -37,7 +38,7 @@ router.post("/", auth, async (req, res) => {
 router.get("/estudiante/:estudianteId", auth, async (req, res) => {
   try {
     const resenas = await Resena.find({ estudianteId: req.params.estudianteId })
-      .populate("clienteId", "nombre fotoPerfil")
+      .populate({ path: "clienteId", model: "User", select: "nombre fotoPerfil" })
       .sort({ createdAt: -1 });
     res.json({ ok: true, resenas });
   } catch (e) {
@@ -49,8 +50,8 @@ router.get("/estudiante/:estudianteId", auth, async (req, res) => {
 router.get("/cliente/:clienteId", auth, async (req, res) => {
   try {
     const resenas = await Resena.find({ clienteId: req.params.clienteId })
-      .populate("estudianteId", "nombre fotoPerfil")
-      .populate("citaId", "fecha")       // ← quitamos "servicio" que no existe en Appointment
+      .populate({ path: "estudianteId", model: "User", select: "nombre fotoPerfil" })
+      .populate({ path: "citaId", model: "Appointment", select: "fecha" })
       .sort({ createdAt: -1 });
     res.json({ ok: true, resenas });
   } catch (e) {
