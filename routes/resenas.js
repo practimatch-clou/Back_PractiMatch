@@ -2,29 +2,26 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const Resena = require("../models/Resena");
-const Cita = require("../models/Cita");
+const Cita = require("../models/Appointment"); // ← corregido
 
-// POST /api/resenas — el cliente deja una reseña (solo si la cita está pagada)
 router.post("/", auth, async (req, res) => {
   try {
     const { citaId, calificacion, comentario } = req.body;
     const clienteId = req.user.id;
 
-    // Verificar que la cita existe, está pagada y pertenece al cliente
     const cita = await Cita.findById(citaId);
     if (!cita) return res.status(404).json({ ok: false, mensaje: "Cita no encontrada" });
-    if (cita.clienteId.toString() !== clienteId)
+    if (cita.cliente.toString() !== clienteId)           // ← corregido
       return res.status(403).json({ ok: false, mensaje: "No tienes permiso para reseñar esta cita" });
-    if (cita.estado !== "pagada" && cita.pagoEstado !== "completado")
-      return res.status(400).json({ ok: false, mensaje: "Solo puedes reseñar citas pagadas" });
+    if (cita.estado !== "pagada" && cita.estado !== "completada")  // ← corregido
+      return res.status(400).json({ ok: false, mensaje: "Solo puedes reseñar citas pagadas o completadas" });
 
-    // Verificar que no haya reseña previa para esta cita
     const yaReseno = await Resena.findOne({ citaId });
     if (yaReseno) return res.status(400).json({ ok: false, mensaje: "Ya dejaste una reseña para esta cita" });
 
     const resena = await Resena.create({
       clienteId,
-      estudianteId: cita.estudianteId,
+      estudianteId: cita.estudiante,  // ← corregido
       citaId,
       calificacion,
       comentario: comentario ?? "",
@@ -36,7 +33,7 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-// GET /api/resenas/estudiante/:estudianteId — reseñas de un estudiante (para su perfil)
+// GET /api/resenas/estudiante/:estudianteId
 router.get("/estudiante/:estudianteId", auth, async (req, res) => {
   try {
     const resenas = await Resena.find({ estudianteId: req.params.estudianteId })
@@ -48,12 +45,12 @@ router.get("/estudiante/:estudianteId", auth, async (req, res) => {
   }
 });
 
-// GET /api/resenas/cliente/:clienteId — reseñas dejadas por el cliente (para su perfil)
+// GET /api/resenas/cliente/:clienteId
 router.get("/cliente/:clienteId", auth, async (req, res) => {
   try {
     const resenas = await Resena.find({ clienteId: req.params.clienteId })
       .populate("estudianteId", "nombre fotoPerfil")
-      .populate("citaId", "servicio fecha")
+      .populate("citaId", "fecha")       // ← quitamos "servicio" que no existe en Appointment
       .sort({ createdAt: -1 });
     res.json({ ok: true, resenas });
   } catch (e) {
