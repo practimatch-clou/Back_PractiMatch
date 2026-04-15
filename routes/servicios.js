@@ -8,7 +8,7 @@ const auth = require("../middleware/auth");
 router.get("/", auth, async (req, res) => {
   try {
     const servicios = await Servicio.find({ activo: true })
-      .populate("usuarioId", "nombre fotoPerfil universidad area")
+      .populate("usuarioId", "nombre fotoPerfil universidad area carrera")
       .sort({ createdAt: -1 });
     res.json({ ok: true, servicios });
   } catch (e) {
@@ -21,7 +21,7 @@ router.get("/:usuarioId", auth, async (req, res) => {
   try {
     const servicios = await Servicio.find({
       usuarioId: req.params.usuarioId,
-    }).populate("usuarioId", "nombre fotoPerfil universidad area");
+    }).populate("usuarioId", "nombre fotoPerfil universidad area carrera");
     res.json({ ok: true, servicios });
   } catch (e) {
     res.status(500).json({ ok: false, mensaje: e.message });
