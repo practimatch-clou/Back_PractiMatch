@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema(
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     fechaRegistro: { type: Date, default: Date.now },
-    favorites: [{ type: Number }],
+    favoritos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Servicio" }],
     fotoPerfil: { type: String, default: "" },
     documentosValidacion: [documentSchema], // ← ahora sí lo encuentra
     estadoValidacion: {
