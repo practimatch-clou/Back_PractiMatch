@@ -14,14 +14,15 @@ const UserSchema = new mongoose.Schema(
     carrera: {
       type: String,
       enum: [
-        "Medicina / Enfermería",
+        "Medicina",
         "Psicología",
         "Derecho",
         "Diseño Gráfico",
         "Comunicación",
-        "Contabilidad / Finanzas",
+        "Contabilidad",
         "Nutrición",
         "Arquitectura",
+        "Fotografía",
         "Otra",
       ],
     },
